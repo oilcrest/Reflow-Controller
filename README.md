@@ -6,7 +6,46 @@ The Reflow-Controller was built to control different kinds of reflow ovens, hotp
 
 The [Youtube video](https://youtu.be/nffLDqJwJ3Q) shows the assembly of a complete reflow oven system and the first tests.
 
-Features of the PCB:
+## Build & flash :
+Using Visual Studio : Import "code" folder as project folder. Connect the pcb via usb, put the S1 switch to the lower position, hold and press GPIO0-button while resetting with the reset-button. ESP32 should come up as a serial port device. Select that corresponding port for flashing. Edit platformio.ini file and set the upload_port setting corresponding to your serial port device (COMxx on Windows, /dev/ttyUSBx on linux or /dev/cu.usbmodem01 as stated by makermoekoe (original projects author).
+Press compile & upload button.
+
+Using Arduino IDE :
+Import main.cpp file contents as a new sketch.
+Add "https://raw.githubusercontent.com/espressif/arduino-esp32/gh-pages/package_esp32_dev_index.json" as additional board manager URL in Arduino IDE preferences.
+Connect the pcb via usb, put the S1 switch to the lower position, hold and press GPIO0-button while resetting with the reset-button. ESP32 should come up as a serial port device. Select that corresponding port for flashing in Arduino (Port setting where the board selection is also located, in "Tools" - Menu)
+Then select ESP32S2-Dev Module as board in Arduino. You can make all ESP32-related flash & chip configs there too. The settings I use are :
+-"Use CDC on boot" - Enabled
+-"CPU Frequency" - 240MHz
+-"Core Debug Level" - Warn
+
+All others left by default / select the ones you think fits best.
+
+Libraries required as dependency for the project in Arduino (as for 2.0.3 version I currently use, install them via Arduino Library Manager) :
+- PID by Brett Beauregard - v 1.2.1
+- FastLED by Daniel Garcia - v 3.5.0
+- U8G2 by Oliver Kraus - v 2.33.15
+- MAX6675 Library by Adafruit - v 1.1.0
+- Smoothed by Matthew Fryer - v 1.2
+- ESPAsync-WifiManager and all it`s dependencies (install via IDE library manager) - https://github.com/khoih-prog/ESPAsync_WiFiManager
+
+Lib-versions are the latest ones when writing this.
+
+## Wifi - Setup :
+Wifi will (currently!?) NOT work correctly when the board is powered by USB.
+This means, you can flash via USB without external power to the board, but, as the initial wifi-setup is blocking the normal program, you will need to power via external power, to get wifi set up correctly. Once wifi is set up, "normal" program will run as soon as wifi connected.
+Make sure to select the default 4MB flash partitioning scheme with SPIFFS when flashing.
+Process should be done as follows :
+Compile & flash => switch to external power => configure wifi by connecting to the esp32-provided AP => restart board on external. You can and should monitor the serial output via USB for the first startup via serial console anyhow, as it will show you debug info and the default wifi-password for the config ap. The caption page of the AP to do the wifi settings is listening on 192.168.4.1:80 once the AP is up.
+
+## OTA-Flash :
+Once the board is connected to wifi, you can flash it over the air from then on. Simply select the network-connection port in Arduino, that should come up a few seconds after the board is powered and connected to wifi. Only downside/bug I found so far, is that often the flashing process in Arduino doesnt get the successful flash response and therefore keeps hanging in flash mechanism - making a restart of the IDE necessary. Apart from that, OTA works fine.
+
+(Note from p1ngb4ck, adding this section : ) At the time of writing this, I did not yet find out, how to make the esptool.py settings in Visual Studio Code to be able to make the ESP32 chip settings (USB-CDC, SPIFFS etc etc). Therefore I currently use Arduino 2.0.3 IDE myself. Visual Studio Code has the advantage though, not to have to download&install dependencies (libraries) manually though. If anybody share some light into how to make these settings correctly in Visual Studio Code - you are mostly welcome to add this info by posting to issues section. TY.
+
+Lots of thanks for this great project to makermoekoe. Please watch his video !!!
+
+## Features of the PCB:
 
 - ESP32-S2 MCU
 - 2x MAX6675 thermocouple sensor input
